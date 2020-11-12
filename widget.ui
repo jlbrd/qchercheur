@@ -160,7 +160,14 @@
          <property name="contextMenuPolicy">
           <enum>Qt::CustomContextMenu</enum>
          </property>
-         <widget class="TextEdit" name="textApercu"/>
+         <widget class="TextEdit" name="textApercu">
+          <property name="font">
+           <font>
+            <family>JetBrains Mono</family>
+            <pointsize>11</pointsize>
+           </font>
+          </property>
+         </widget>
          <widget class="QLabel" name="imageApercu"/>
         </widget>
        </item>
