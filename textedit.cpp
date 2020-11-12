@@ -2,19 +2,15 @@
 #include <QPlainTextEdit>
 #include <QPainter>
 #include <QTextBlock>
+#include <QMenu>
+#include <QDebug>
 #include "linenumberarea.h"
 
 TextEdit::TextEdit(QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = new LineNumberArea(this);
-
-    //connect(this, &TextEdit::blockCountChanged, this, &TextEdit::updateLineNumberAreaWidth);
     connect(this, &TextEdit::updateRequest, this, &TextEdit::updateLineNumberArea);
-    //connect(this, &TextEdit::cursorPositionChanged, this, &TextEdit::highlightCurrentLine);
-
     updateLineNumberAreaWidth(0);
-    //highlightCurrentLine();
-
 }
 
 int TextEdit::lineNumberAreaWidth()
@@ -25,9 +21,7 @@ int TextEdit::lineNumberAreaWidth()
         max /= 10;
         ++digits;
     }
-
     int space = 3 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * (digits + 1);
-
     return space;
 }
 
@@ -76,4 +70,23 @@ void TextEdit::lineNumberAreaPaintEvent(QPaintEvent *event)
         bottom = top + qRound(blockBoundingRect(block).height());
         ++blockNumber;
     }
+}
+void TextEdit::contextMenuEvent(QContextMenuEvent *event)
+{
+    QString word = textCursor().selectedText();
+    if(word == "") {
+        return;
+    }
+    QMenu *menu = createStandardContextMenu();
+    QAction *action = menu->addAction(QIcon(""), tr("Nouvelle recherche avec la sélection"));
+    connect(action, SIGNAL(triggered()), this, SLOT(recherche()));
+    //...
+    menu->exec(event->globalPos());
+    delete menu;
+}
+
+void TextEdit::recherche()
+{
+    QString word = textCursor().selectedText();
+    emit nouvelleRecherche(word);
 }

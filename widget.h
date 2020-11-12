@@ -44,15 +44,14 @@ private slots:
     void on_tableResultats_customContextMenuRequested(const QPoint &pos);
 
     void copierTexte();
-    void nouvelleRecherche();
 
     void on_notepadd_clicked();
-    void on_apercu_customContextMenuRequested(const QPoint &pos);
     void apercuTexte(QString filename);
     void apercuImage(QString filename);
 
 public slots:
     void slotFind(Ui::FindWidget uiFind, QString ttf=QString(), QTextDocument::FindFlags options=0, bool fromButton=false);
+    void nouvelleRecherche(QString);
 
 private:
     Ui::Widget *ui;

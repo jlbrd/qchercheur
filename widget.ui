@@ -167,6 +167,9 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::DefaultContextMenu</enum>
+          </property>
          </widget>
          <widget class="QLabel" name="imageApercu"/>
         </widget>

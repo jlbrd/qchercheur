@@ -39,6 +39,7 @@ Widget::Widget(QWidget *parent, QString chemin, QString texte) :
     if(texte != "") {
         ui->comboContenant->setCurrentText(texte);
     }
+    connect(textApercu, SIGNAL(nouvelleRecherche(QString)), this, SLOT(nouvelleRecherche(QString)));
 }
 
 Widget::~Widget()
@@ -87,7 +88,7 @@ void Widget::on_boutonDepart_clicked()
 }
 
 bool Widget::repertoireExclu(QString nomFichier) {
-    QStringList exclusions = ui->comboExclusion->currentText().replace(" ","").split(";", QString::SkipEmptyParts);
+    QStringList exclusions = ui->comboExclusion->currentText().replace(" ","").split(";", Qt::SkipEmptyParts);
     foreach (QString exclusion, exclusions) {
         if(nomFichier.contains(exclusion)) {
             return true;
@@ -332,33 +333,20 @@ void Widget::findNext()
     this->finder->findNext();
 }
 
-void Widget::on_apercu_customContextMenuRequested(const QPoint &pos)
-{
-    QString word = textApercu->textCursor().selectedText();
-    if(word == "") {
-        return;
-    }
-    //qDebug() << "on_textApercu_customContextMenuRequested" << word;
-    QPoint globalPos = qobject_cast< QWidget* >( sender() )->mapToGlobal( pos );
-    QMenu *menu = new QMenu(textApercu);
-    QAction *action = menu->addAction(QIcon(""), tr("Nouvelle recherche avec la sélection"));
-    connect(action, SIGNAL(triggered()), this, SLOT(nouvelleRecherche()));
-    //menu->addAction(tr("Nouvelle recherche avec la sélection"), SLOT(nouvelleRecherche()));
-    menu->exec(globalPos);
-    delete menu;
-}
 
-void Widget::nouvelleRecherche() {
-    MainWindow* mainwindow = qobject_cast<MainWindow *>(parent());
+void Widget::nouvelleRecherche(QString selectedText) {
+    qDebug() << "parent" << parentWidget() << qApp->activeWindow();
+    MainWindow* mainwindow = qobject_cast<MainWindow *>(qApp->activeWindow());
     if(mainwindow == 0) {
         qDebug() << "mainwindow 0" << parentWidget();
     }
     //MainWindow* main = (MainWindow *) parentWidget();
     QTableWidgetItem *item = ui->tableResultats->item(ui->tableResultats->currentRow(), 1);
-    QString selectedText = textApercu->textCursor().selectedText();
     if(item == 0 || selectedText == "") {
         return;
     }
     QString chemin = QFileInfo(item->text()).absoluteDir().absolutePath();
     mainwindow->nouvelleRecherche(chemin, selectedText);
 }
+
+
