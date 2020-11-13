@@ -2,6 +2,7 @@
 #include "ui_widget.h"
 #include "javahighlighter.h"
 #include "xmlhighlighter.h"
+#include "sqlhighlighter.h"
 #include "mainwindow.h"
 #include "find.h"
 #include <QFileDialog>
@@ -142,6 +143,8 @@ void Widget::apercuTexte(QString filename) {
         highlighter = new JavaHighlighter(textApercu->document());
     } else if(filename.toLower().endsWith(".xml")) {
         highlighter = new XmlHighlighter(textApercu->document());
+    } else if(filename.toLower().endsWith(".sql")) {
+        highlighter = new SqlHighlighter(textApercu->document());
     }
     else if (highlighter){
         delete highlighter;
@@ -350,3 +353,9 @@ void Widget::nouvelleRecherche(QString selectedText) {
 }
 
 
+
+void Widget::on_comboContenant_editTextChanged(const QString &texte)
+{
+    MainWindow* mainwindow = qobject_cast<MainWindow *>(qApp->activeWindow());
+    mainwindow->changeTitre(this, texte);
+}

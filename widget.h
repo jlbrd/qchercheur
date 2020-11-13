@@ -49,6 +49,8 @@ private slots:
     void apercuTexte(QString filename);
     void apercuImage(QString filename);
 
+    void on_comboContenant_editTextChanged(const QString &arg1);
+
 public slots:
     void slotFind(Ui::FindWidget uiFind, QString ttf=QString(), QTextDocument::FindFlags options=0, bool fromButton=false);
     void nouvelleRecherche(QString);

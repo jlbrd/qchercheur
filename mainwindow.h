@@ -15,6 +15,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
     void nouvelleRecherche(QString chemin, QString texte);
+    void changeTitre(QWidget *, QString);
 private slots:
     void slotAddTab();
     void slotCloseTab(int);

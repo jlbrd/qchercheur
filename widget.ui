@@ -164,7 +164,7 @@
           <property name="font">
            <font>
             <family>JetBrains Mono</family>
-            <pointsize>11</pointsize>
+            <pointsize>10</pointsize>
            </font>
           </property>
           <property name="contextMenuPolicy">
@@ -225,7 +225,7 @@
            </property>
            <item>
             <property name="text">
-             <string>*.java; *.xml; *.cpp; *.h; *.txt</string>
+             <string>*.java; *.xml; *.cpp; *.h; *.txt; *.sql</string>
             </property>
            </item>
           </widget>

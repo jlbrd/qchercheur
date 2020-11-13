@@ -5,6 +5,7 @@
 #include <QToolButton>
 #include <QLabel>
 #include <QTabBar>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint
@@ -40,12 +41,14 @@ MainWindow::~MainWindow()
 void MainWindow::slotAddTab()
 {
     ui->tabWidget->insertTab(ui->tabWidget->count()-1, new Widget(this), tr("Recherche %1").arg(QString::number(ui->tabWidget->count())));
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count());
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-2);
 }
 
 void MainWindow::slotCloseTab(int index)
 {
     delete ui->tabWidget->widget(index);
+    ui->tabWidget->setCurrentIndex(qMax(index-1, 0));
+    //qDebug() << "setCurrentIndex" << ui->tabWidget->count()-1;
 }
 
 void MainWindow::on_actionFind_triggered()
@@ -74,6 +77,18 @@ void MainWindow::on_actionPrevious_triggered()
 
 void MainWindow::nouvelleRecherche(QString chemin, QString texte) {
     Widget* widget = new Widget(this, chemin, texte);
-    ui->tabWidget->insertTab(ui->tabWidget->count()-1, widget, tr("Recherche %1").arg(QString::number(ui->tabWidget->count())));
-    ui->tabWidget->setCurrentIndex(ui->tabWidget->count());
+    QString titre = texte.left(15) + (texte.length() > 14 ? "..." : "");
+    ui->tabWidget->insertTab(ui->tabWidget->count()-1, widget, titre);
+    ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-2);
+}
+
+void MainWindow::changeTitre(QWidget* widget, QString texte) {
+    int index = ui->tabWidget->indexOf(widget);
+    QString titre;
+    if(texte.isEmpty()) {
+        titre = tr("Recherche %1").arg(QString::number(index));
+    } else {
+        titre = texte.left(15) + (texte.length() > 14 ? "..." : "");
+    }
+    ui->tabWidget->setTabText(index, titre);
 }

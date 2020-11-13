@@ -28,6 +28,7 @@ SOURCES += \
     linenumberarea.cpp \
         main.cpp \
         mainwindow.cpp \
+    sqlhighlighter.cpp \
     textedit.cpp \
     widget.cpp \
     javahighlighter.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
 HEADERS += \
     linenumberarea.h \
         mainwindow.h \
+    sqlhighlighter.h \
     textedit.h \
     widget.h \
     javahighlighter.h \
