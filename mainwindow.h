@@ -22,7 +22,10 @@ private slots:
     void on_actionFind_triggered();
     void on_actionNext_triggered();
     void on_actionPrevious_triggered();
+    void on_actionQuit_triggered();
 
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override;
 private:
     Ui::MainWindow *ui;
 };

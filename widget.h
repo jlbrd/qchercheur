@@ -25,9 +25,6 @@ public:
     void findPrevious();
     void findNext();
 private slots:
-    void on_boutonDepart_clicked();
-
-    void on_boutonArret_clicked();
 
     void on_changerRepertoire_clicked();
 
@@ -52,6 +49,8 @@ private slots:
     void on_comboContenant_editTextChanged(const QString &arg1);
 
 public slots:
+    void on_boutonDepart_clicked();
+    void on_boutonArret_clicked();
     void slotFind(Ui::FindWidget uiFind, QString ttf=QString(), QTextDocument::FindFlags options=0, bool fromButton=false);
     void nouvelleRecherche(QString);
 

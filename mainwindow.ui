@@ -50,17 +50,14 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>Fichier</string>
     </property>
-    <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
     <addaction name="separator"/>
-    <addaction name="actionClose_file"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>Texte</string>
     </property>
     <addaction name="actionFind"/>
     <addaction name="actionNext"/>
@@ -84,7 +81,7 @@
   </action>
   <action name="actionQuit">
    <property name="text">
-    <string>Quit</string>
+    <string>Quitter</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
@@ -97,7 +94,7 @@
   </action>
   <action name="actionFind">
    <property name="text">
-    <string>Find</string>
+    <string>Rechercher dans le texte</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F</string>
@@ -105,7 +102,7 @@
   </action>
   <action name="actionNext">
    <property name="text">
-    <string>Next</string>
+    <string>Suivant</string>
    </property>
    <property name="shortcut">
     <string>F3</string>
@@ -113,7 +110,7 @@
   </action>
   <action name="actionPrevious">
    <property name="text">
-    <string>Previous</string>
+    <string>Précédent</string>
    </property>
    <property name="shortcut">
     <string>Shift+F3</string>
