@@ -16,16 +16,13 @@ MainWindow::MainWindow(QWidget *parent) :
     resize(1024, 700);
 
     ui->tabWidget->removeTab(0);
-    if(qApp->arguments().size() > 2 && qApp->arguments().at(1) == "--working-dir") {
+    /*if(qApp->arguments().size() > 2 && qApp->arguments().at(1) == "--working-dir") {
         QString chemin = qApp->arguments().at(2);
         nouvelleRecherche(chemin, "");
-        //QMessageBox msgBox;
-        //msgBox.setText(qApp->arguments().at(1) + " " + );
-        //msgBox.exec();
     }
-    else {
+    else {*/
         slotAddTab();
-    }
+    //}
 
     ui->tabWidget->addTab(new QLabel("Add tabs by pressing \"+\""), QString());
     ui->tabWidget->setTabEnabled(1, false);
@@ -39,7 +36,16 @@ MainWindow::MainWindow(QWidget *parent) :
     installEventFilter(this);
 }
 
+void MainWindow::receivedMessage(int instanceId, QByteArray chemin)
+{
+    //qDebug() << "Received message from instance: " << instanceId;
+    //qDebug() << "Message Text: " << message;
+    nouvelleRecherche(chemin, "");
+}
 
+void MainWindow::instanceStarted() {
+    QApplication::setActiveWindow( this );
+}
 MainWindow::~MainWindow()
 {
     delete ui;

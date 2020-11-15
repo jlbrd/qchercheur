@@ -23,7 +23,9 @@ private slots:
     void on_actionNext_triggered();
     void on_actionPrevious_triggered();
     void on_actionQuit_triggered();
-
+public slots:
+    void receivedMessage(int instanceId, QByteArray message );
+    void instanceStarted();
 protected:
     bool eventFilter(QObject* obj, QEvent* event) override;
 private:
