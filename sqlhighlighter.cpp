@@ -1,7 +1,7 @@
 #include "sqlhighlighter.h"
 
-SqlHighlighter::SqlHighlighter(QTextDocument *parent)
-    : QSyntaxHighlighter(parent)
+SqlHighlighter::SqlHighlighter(QTextDocument *parent, QRegularExpression _regularExpression)
+    : Highlighter(parent, _regularExpression)
 {
     HighlightingRule rule;
 
@@ -74,6 +74,9 @@ SqlHighlighter::SqlHighlighter(QTextDocument *parent)
 
 void SqlHighlighter::highlightBlock(const QString &text)
 {
+    if(Highlighter::highlightBlockRecherche(text)) {
+        return;
+    }
     foreach (const HighlightingRule &rule, highlightingRules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {
@@ -106,5 +109,4 @@ void SqlHighlighter::highlightBlock(const QString &text)
         setFormat(startIndex, commentLength, multiLineCommentFormat);
         startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
     }
-
 }

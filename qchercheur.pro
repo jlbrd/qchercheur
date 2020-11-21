@@ -26,6 +26,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 RC_FILE += qchercheur.rc
 
 SOURCES += \
+    highlighter.cpp \
     linenumberarea.cpp \
         main.cpp \
         mainwindow.cpp \
@@ -37,6 +38,7 @@ SOURCES += \
     xmlhighlighter.cpp
 
 HEADERS += \
+    highlighter.h \
     linenumberarea.h \
         mainwindow.h \
     sqlhighlighter.h \

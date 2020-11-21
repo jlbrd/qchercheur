@@ -1,7 +1,7 @@
 #include "javahighlighter.h"
 
-JavaHighlighter::JavaHighlighter(QTextDocument *parent)
-: QSyntaxHighlighter(parent)
+JavaHighlighter::JavaHighlighter(QTextDocument *parent, QRegularExpression _regularExpression)
+: Highlighter(parent, _regularExpression)
 {
     HighlightingRule rule;
 
@@ -61,11 +61,13 @@ JavaHighlighter::JavaHighlighter(QTextDocument *parent)
 //! [6]
     commentStartExpression = QRegularExpression("/\\*");
     commentEndExpression = QRegularExpression("\\*/");
-
 }
 
 void JavaHighlighter::highlightBlock(const QString &text)
 {
+    if(Highlighter::highlightBlockRecherche(text)) {
+        return;
+    }
     foreach (const HighlightingRule &rule, highlightingRules) {
         QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
         while (matchIterator.hasNext()) {

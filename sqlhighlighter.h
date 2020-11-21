@@ -1,27 +1,21 @@
 #ifndef SQLHIGHLIGHTER_H
 #define SQLHIGHLIGHTER_H
 
+#include "highlighter.h"
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
 #include <QRegularExpression>
 #include <QObject>
 
-class SqlHighlighter : public QSyntaxHighlighter
+class SqlHighlighter : public Highlighter
 {
     Q_OBJECT
 public:
-    SqlHighlighter(QTextDocument *parent = 0);
+    SqlHighlighter(QTextDocument *parent, QRegularExpression _regularExpression);
 protected:
     void highlightBlock(const QString &text) override;
 
 private:
-    struct HighlightingRule
-    {
-        QRegularExpression pattern;
-        QTextCharFormat format;
-    };
-    QVector<HighlightingRule> highlightingRules;
-
     QRegularExpression commentStartExpression;
     QRegularExpression commentEndExpression;
 

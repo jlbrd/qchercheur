@@ -1,15 +1,16 @@
 #ifndef XMLHIGHLIGHTER_H
 #define XMLHIGHLIGHTER_H
 
+#include "highlighter.h"
 #include <QSyntaxHighlighter>
 #include <QTextEdit>
 
-class XmlHighlighter : public QSyntaxHighlighter
+class XmlHighlighter : public Highlighter
 {
     Q_OBJECT
 public:
     XmlHighlighter(QObject * parent);
-    XmlHighlighter(QTextDocument * parent);
+    XmlHighlighter(QTextDocument * parent, QRegularExpression _regularExpression);
     XmlHighlighter(QTextEdit * parent);
 
 protected:

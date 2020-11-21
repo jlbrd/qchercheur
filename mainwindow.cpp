@@ -38,8 +38,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::receivedMessage(int instanceId, QByteArray chemin)
 {
-    //qDebug() << "Received message from instance: " << instanceId;
-    //qDebug() << "Message Text: " << message;
     nouvelleRecherche(chemin, "");
 }
 
@@ -79,8 +77,13 @@ void MainWindow::slotAddTab()
 
 void MainWindow::slotCloseTab(int index)
 {
-    delete ui->tabWidget->widget(index);
+    qDebug() << "slotCloseTab" << index-1;
+    Widget *widget = qobject_cast<Widget*>(ui->tabWidget->widget(index));
+    widget->on_boutonArret_clicked();
+    widget->deleteLater();
     ui->tabWidget->setCurrentIndex(qMax(index-1, 0));
+    qDebug() << "slotCloseTab2" << qMax(index-1, 0);
+
 }
 
 void MainWindow::on_actionFind_triggered()
@@ -112,15 +115,9 @@ void MainWindow::on_actionPrevious_triggered()
 
 void MainWindow::nouvelleRecherche(QString chemin, QString texte) {
     Widget* widget = new Widget(this, chemin, texte);
-    QString titre;
-    if(titre == "") {
-        titre = tr("Recherche %1").arg(QString::number(ui->tabWidget->count()));
-    }
-    else {
-        titre = texte.left(15) + (texte.length() > 14 ? "..." : "");
-    }
-    ui->tabWidget->insertTab(ui->tabWidget->count()-1, widget, titre);
+    ui->tabWidget->insertTab(ui->tabWidget->count()-1, widget, "");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-2);
+    changeTitre(widget, texte);
 }
 
 void MainWindow::changeTitre(QWidget* widget, QString texte) {

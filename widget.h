@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTextBlock>
+#include <QRegularExpression>
 #include "ui_findwidget.h"
 #include "textedit.h"
 
@@ -59,10 +60,10 @@ private:
     bool fichierContient(QString nomFichier);
     bool repertoireExclu(QString nomFichier);
     bool stopper;
-    void surligne();
     QSyntaxHighlighter *highlighter = 0;
     Find* finder;
     TextEdit* textApercu;
+    QRegularExpression regularExpression();
 };
 
 #endif // WIDGET_H

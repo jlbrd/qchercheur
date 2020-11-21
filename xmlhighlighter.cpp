@@ -1,28 +1,19 @@
 #include "xmlhighlighter.h"
 
-XmlHighlighter::XmlHighlighter(QObject * parent) :
-    QSyntaxHighlighter(parent)
+
+XmlHighlighter::XmlHighlighter(QTextDocument * parent, QRegularExpression _regularExpression) :
+    Highlighter(parent, _regularExpression)
 {
     setRegexes();
     setFormats();
 }
 
-XmlHighlighter::XmlHighlighter(QTextDocument * parent) :
-    QSyntaxHighlighter(parent)
-{
-    setRegexes();
-    setFormats();
-}
-
-XmlHighlighter::XmlHighlighter(QTextEdit * parent) :
-    QSyntaxHighlighter(parent)
-{
-    setRegexes();
-    setFormats();
-}
 
 void XmlHighlighter::highlightBlock(const QString & text)
 {
+    if(Highlighter::highlightBlockRecherche(text)) {
+        return;
+    }
     // Special treatment for xml element regex as we use captured text to emulate lookbehind
     int xmlElementIndex = m_xmlElementRegex.indexIn(text);
     while(xmlElementIndex >= 0)

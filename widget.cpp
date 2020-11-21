@@ -3,6 +3,7 @@
 #include "javahighlighter.h"
 #include "xmlhighlighter.h"
 #include "sqlhighlighter.h"
+#include "highlighter.h"
 #include "mainwindow.h"
 #include "find.h"
 #include <QFileDialog>
@@ -28,6 +29,7 @@ Widget::Widget(QWidget *parent, QString chemin, QString texte) :
     ui(new Ui::Widget)
 {
     ui->setupUi(this);
+    highlighter = 0;
     textApercu = (TextEdit*) ui->apercu->widget(0);
     finder = new Find(ui->findWidgetContainer, this, textApercu);
     ui->tableResultats->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -105,13 +107,27 @@ bool Widget::fichierContient(QString nomFichier) {
     QString line;
     do {
         line = in.readLine();
-        if (line.contains(ui->comboContenant->currentText(), Qt::CaseInsensitive)) {
+        bool found;
+        found = regularExpression().globalMatch(line).hasNext();
+        if (found) {
             fichier.close();
             return true;
         }
     } while (!line.isNull());
     fichier.close();
     return false;
+}
+
+QRegularExpression Widget::regularExpression() {
+   QString recherche = ui->comboContenant->currentText().replace("(", "\\(");
+    QRegularExpression::PatternOptions options = QRegularExpression::CaseInsensitiveOption;
+    if(ui->respecterCasse->isChecked()) {
+        options = QRegularExpression::NoPatternOption;
+    }
+    if(ui->motEntier->isChecked()) {
+        recherche = "\\b" + recherche +"\\b";
+    }
+    return QRegularExpression(recherche, options);
 }
 
 void Widget::on_boutonArret_clicked()
@@ -138,18 +154,6 @@ void Widget::on_tableResultats_itemClicked(QTableWidgetItem *item)
 void Widget::apercuTexte(QString filename) {
     ui->apercu->setCurrentIndex(0);
     QFile file(filename);
-    if(filename.toLower().endsWith(".png")) {
-    } else if(filename.toLower().endsWith(".java")) {
-        highlighter = new JavaHighlighter(textApercu->document());
-    } else if(filename.toLower().endsWith(".xml")) {
-        highlighter = new XmlHighlighter(textApercu->document());
-    } else if(filename.toLower().endsWith(".sql")) {
-        highlighter = new SqlHighlighter(textApercu->document());
-    }
-    else if (highlighter){
-        delete highlighter;
-        highlighter = 0;
-    }
     file.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream s1(&file);
 
@@ -159,7 +163,25 @@ void Widget::apercuTexte(QString filename) {
 
     textApercu->setPlainText(s1.readAll());
     file.close();
-    surligne();
+
+    if (highlighter){
+        delete highlighter;
+        highlighter = 0;
+    }
+    if(textApercu->blockCount() > 10000) {
+        return;
+    }
+    if(filename.toLower().endsWith(".png")) {
+    } else if(filename.toLower().endsWith(".java")) {
+        highlighter = new JavaHighlighter(textApercu->document(), regularExpression());
+    } else if(filename.toLower().endsWith(".xml")) {
+        highlighter = new XmlHighlighter(textApercu->document(), regularExpression());
+    } else if(filename.toLower().endsWith(".sql")) {
+        highlighter = new SqlHighlighter(textApercu->document(), regularExpression());
+    } else {
+        highlighter = new Highlighter(textApercu->document(), regularExpression());
+    }
+    //surligne();
 
 }
 void Widget::apercuImage(QString filename) {
@@ -171,50 +193,17 @@ void Widget::apercuImage(QString filename) {
     label->setPixmap(pixmap);
 }
 
-void Widget::surligne()
-{
-    QString text = ui->comboContenant->currentText();
-    if (text.isEmpty()) {
-        return;
-    }
-    QList<QTextEdit::ExtraSelection> extraSelectionsList;
-    textApercu->setExtraSelections( QList<QTextEdit::ExtraSelection>() );
-    int nbOccurrences = 0;
-    while ( textApercu->find(text) )
-    {
-        QTextEdit::ExtraSelection highlight;
-        highlight.cursor = textApercu->textCursor();
-        highlight.format.setBackground( QBrush( Qt::yellow ) );
-        extraSelectionsList << highlight;
-        nbOccurrences++;
-    }
-    textApercu->setExtraSelections( extraSelectionsList );
-    textApercu->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
-
-    QTextCursor newCursor = textApercu->document()->find(text);
-    newCursor.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
-    //highlight.cursor.movePosition( QTextCursor::PreviousWord );
-    //highlight.cursor.movePosition( QTextCursor::EndOfWord, QTextCursor::KeepAnchor );
-
-    textApercu->setTextCursor(newCursor);
-    textApercu->ensureCursorVisible();
-    ui->nbOccurrences->setText(QString::number(nbOccurrences) + " résultat" + (nbOccurrences > 1 ? "s" : ""));
-
-}
-
-void Widget::on_premier_clicked()
-{
-    textApercu->moveCursor(QTextCursor::Start, QTextCursor::MoveAnchor);
-    on_suivant_clicked();
-}
-
 void Widget::on_precedent_clicked()
 {
     QString text = ui->comboContenant->currentText();
     if (text.isEmpty()) {
         return;
     }
-    textApercu->find(text, QTextDocument::FindBackward);
+    textApercu->find(regularExpression(), QTextDocument::FindBackward);
+    QTextCursor cursor = textApercu->textCursor();
+    cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NoMove, QTextCursor::KeepAnchor);
+    textApercu->setTextCursor(cursor);
     textApercu->ensureCursorVisible();
 }
 
@@ -224,14 +213,32 @@ void Widget::on_suivant_clicked()
     if (text.isEmpty()) {
         return;
     }
-    textApercu->find(text);
+    textApercu->find(regularExpression());
+    QTextCursor cursor = textApercu->textCursor();
+    cursor.movePosition(QTextCursor::StartOfWord, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NoMove, QTextCursor::KeepAnchor);
+    textApercu->setTextCursor(cursor);
     textApercu->ensureCursorVisible();
 
 }
 
+void Widget::on_premier_clicked()
+{
+    QTextCursor cursor = textApercu->textCursor();
+    cursor.movePosition(QTextCursor::Start, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NoMove, QTextCursor::KeepAnchor);
+    textApercu->setTextCursor(cursor);
+    on_suivant_clicked();
+}
+
 void Widget::on_dernier_clicked()
 {
-    //
+    //textApercu->moveCursor(QTextCursor::End, QTextCursor::MoveAnchor);
+    QTextCursor cursor = textApercu->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    cursor.movePosition(QTextCursor::NoMove, QTextCursor::KeepAnchor);
+    textApercu->setTextCursor(cursor);
+    on_precedent_clicked();
 }
 
 void Widget::on_tableResultats_customContextMenuRequested(const QPoint &pos)
