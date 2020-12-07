@@ -25,6 +25,7 @@ public:
     void find();
     void findPrevious();
     void findNext();
+    QString repertoire();
 private slots:
 
     void on_changerRepertoire_clicked();
@@ -48,6 +49,8 @@ private slots:
     void apercuImage(QString filename);
 
     void on_comboContenant_editTextChanged(const QString &arg1);
+
+    void on_comboRepertoires_editTextChanged(const QString &arg1);
 
 public slots:
     void on_boutonDepart_clicked();

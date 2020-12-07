@@ -292,11 +292,6 @@
            <property name="editable">
             <bool>true</bool>
            </property>
-           <item>
-            <property name="text">
-             <string>c:\temp</string>
-            </property>
-           </item>
           </widget>
          </item>
          <item>

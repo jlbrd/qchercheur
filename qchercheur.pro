@@ -30,6 +30,7 @@ SOURCES += \
     linenumberarea.cpp \
         main.cpp \
         mainwindow.cpp \
+    settings.cpp \
     sqlhighlighter.cpp \
     textedit.cpp \
     widget.cpp \
@@ -41,6 +42,7 @@ HEADERS += \
     highlighter.h \
     linenumberarea.h \
         mainwindow.h \
+    settings.h \
     sqlhighlighter.h \
     textedit.h \
     widget.h \

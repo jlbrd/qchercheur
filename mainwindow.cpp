@@ -1,12 +1,15 @@
 #include "mainwindow.h"
 #include "widget.h"
 #include "ui_mainwindow.h"
+#include "settings.h"
 #include <QPushButton>
 #include <QToolButton>
 #include <QLabel>
 #include <QTabBar>
 #include <QDebug>
 #include <QMessageBox>
+#include <QDir>
+#define QD qDebug() << __FILE__ << __LINE__ << ":"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -114,7 +117,7 @@ void MainWindow::on_actionPrevious_triggered()
 }
 
 void MainWindow::nouvelleRecherche(QString chemin, QString texte) {
-    Widget* widget = new Widget(this, chemin, texte);
+    Widget* widget = new Widget(this, QDir::toNativeSeparators(chemin), texte);
     ui->tabWidget->insertTab(ui->tabWidget->count()-1, widget, "");
     ui->tabWidget->setCurrentIndex(ui->tabWidget->count()-2);
     changeTitre(widget, texte);

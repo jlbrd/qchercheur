@@ -6,6 +6,8 @@
 #include "highlighter.h"
 #include "mainwindow.h"
 #include "find.h"
+#include "settings.h"
+
 #include <QFileDialog>
 #include <QDirIterator>
 #include <QDebug>
@@ -22,6 +24,8 @@
 #include <QTextCursor>
 #include <QTextCodec>
 #include <QStackedWidget>
+#include <QCompleter>
+#include <QFileSystemModel>
 
 
 Widget::Widget(QWidget *parent, QString chemin, QString texte) :
@@ -36,13 +40,25 @@ Widget::Widget(QWidget *parent, QString chemin, QString texte) :
     setWindowFlags(Qt::Widget);
     ui->info->setText("");
     ui->nbOccurrences->setText("");
+    ui->comboRepertoires->addItems(Settings::repertoires());
     if(chemin != "") {
-        ui->comboRepertoires->setCurrentText(chemin);
+        ui->comboRepertoires->setCurrentText(chemin);        
+    } else {
+        ui->comboRepertoires->setCurrentIndex(-1);
     }
     if(texte != "") {
         ui->comboContenant->setCurrentText(texte);
     }
     connect(textApercu, SIGNAL(nouvelleRecherche(QString)), this, SLOT(nouvelleRecherche(QString)));
+
+    QCompleter *completer = ui->comboRepertoires->completer();
+    completer->setCaseSensitivity(Qt::CaseInsensitive);
+    completer->setCompletionMode(QCompleter::PopupCompletion);
+    QFileSystemModel *fsModel = new QFileSystemModel(completer);
+    fsModel->setRootPath(ui->comboRepertoires->currentText());
+    completer->setModel(fsModel);
+    completer->setWrapAround(true);
+    completer->setMaxVisibleItems(15);
 }
 
 Widget::~Widget()
@@ -58,6 +74,7 @@ void Widget::on_boutonDepart_clicked()
     ui->tableResultats->clearContents();
     textApercu->setPlainText("");
     ui->nbOccurrences->setText("");
+    Settings::ajouterRepertoires(repertoire());
     QApplication::processEvents(QEventLoop::AllEvents);
     QDirIterator *it;
     if(ui->comboNomFichier->currentText() != "") {
@@ -70,7 +87,7 @@ void Widget::on_boutonDepart_clicked()
     while (!stopper && it->hasNext()) {
         QString nomFichier = it->next();
         //qDebug() << nomFichier;
-        ui->info->setText(QFileInfo(nomFichier).absoluteDir().absolutePath());
+        ui->info->setText(QDir::toNativeSeparators(QFileInfo(nomFichier).absoluteDir().absolutePath()));
         if(repertoireExclu(nomFichier)) {
             continue;
         }
@@ -333,6 +350,11 @@ void Widget::find()
     this->finder->find();
 }
 
+QString Widget::repertoire()
+{
+    return ui->comboRepertoires->currentText();
+}
+
 void Widget::findPrevious()
 {
     this->finder->findPrevious();
@@ -365,4 +387,18 @@ void Widget::on_comboContenant_editTextChanged(const QString &texte)
 {
     MainWindow* mainwindow = qobject_cast<MainWindow *>(qApp->activeWindow());
     mainwindow->changeTitre(this, texte);
+}
+
+void Widget::on_comboRepertoires_editTextChanged(const QString &texte)
+{
+    QLineEdit *text = ui->comboRepertoires->lineEdit();
+    QPalette palette = text->palette();
+    QString chemin = QDir::toNativeSeparators(texte);
+    if(QDir(chemin).exists()) {
+        palette.setColor(QPalette::Text, QColor(0,0,0));
+    } else {
+        palette.setColor(QPalette::Text, QColor(255,0,0));
+
+    }
+    text->setPalette(palette);
 }
