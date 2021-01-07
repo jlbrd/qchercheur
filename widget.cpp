@@ -7,6 +7,7 @@
 #include "mainwindow.h"
 #include "find.h"
 #include "settings.h"
+#include "cherchefichier.h"
 
 #include <QFileDialog>
 #include <QDirIterator>
@@ -26,6 +27,8 @@
 #include <QStackedWidget>
 #include <QCompleter>
 #include <QFileSystemModel>
+#include <QElapsedTimer>
+#include <QThread>
 
 
 Widget::Widget(QWidget *parent, QString chemin, QString texte) :
@@ -59,6 +62,7 @@ Widget::Widget(QWidget *parent, QString chemin, QString texte) :
     completer->setModel(fsModel);
     completer->setWrapAround(true);
     completer->setMaxVisibleItems(15);
+    nbThread = 0;
 }
 
 Widget::~Widget()
@@ -68,6 +72,8 @@ Widget::~Widget()
 
 void Widget::on_boutonDepart_clicked()
 {
+    //QElapsedTimer timer;
+    //timer.start();
     stopper = false;
     ui->boutonDepart->setEnabled(false);
     ui->tableResultats->setRowCount(0);
@@ -85,19 +91,29 @@ void Widget::on_boutonDepart_clicked()
         it = new QDirIterator(ui->comboRepertoires->currentText(), QDir::NoFilter, QDirIterator::Subdirectories);
     }
     while (!stopper && it->hasNext()) {
+        if(nbThread > 30) {
+            continue;
+        }
         QString nomFichier = it->next();
         //qDebug() << nomFichier;
         ui->info->setText(QDir::toNativeSeparators(QFileInfo(nomFichier).absoluteDir().absolutePath()));
         if(repertoireExclu(nomFichier)) {
             continue;
         }
-        else if(ui->comboContenant->currentText() == "" || fichierContient(nomFichier)) {
-            ui->tableResultats->insertRow(ui->tableResultats->rowCount());
-            ui->tableResultats->setRowCount(ui->tableResultats->rowCount());
-            int numLigne = ui->tableResultats->rowCount()-1;
-            ui->tableResultats->setItem(numLigne, 0, new QTableWidgetItem(nomFichier.section("/", -1)));
-            ui->tableResultats->setItem(numLigne, 1, new QTableWidgetItem(nomFichier));
-            ui->tableResultats->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
+        else if(ui->comboContenant->currentText() == "" ) {
+            fichierTrouve(nomFichier);
+        } else if(!nomFichier.isEmpty()){
+                Cherchefichier *cherche = new Cherchefichier(nomFichier, regularExpression());
+                QThread * th = new QThread();
+                nbThread++;
+                cherche->moveToThread(th);
+                connect(th, SIGNAL(finished()), th, SLOT(deleteLater()), Qt::DirectConnection);
+                connect(th, SIGNAL(finished()), this,   SLOT(threadFinished()),      Qt::DirectConnection);
+                connect(cherche, SIGNAL(finished()), th, SLOT(quit()),        Qt::DirectConnection);
+                connect(cherche, SIGNAL(finished()), cherche, SLOT(deleteLater()), Qt::DirectConnection);
+                connect(cherche, &Cherchefichier::fichierTrouve, this, &Widget::fichierTrouve);
+                connect(th, &QThread::started, cherche, &Cherchefichier::chercher, Qt::DirectConnection);
+                th->start();
         }
         QApplication::processEvents(QEventLoop::AllEvents);
     }
@@ -105,6 +121,11 @@ void Widget::on_boutonDepart_clicked()
     ui->boutonDepart->setEnabled(true);
     ui->info->setText("");
     stopper = false;
+    //qDebug() << "elapsed" << timer.elapsed();
+}
+
+void Widget::threadFinished() {
+    nbThread--;
 }
 
 bool Widget::repertoireExclu(QString nomFichier) {
@@ -117,22 +138,13 @@ bool Widget::repertoireExclu(QString nomFichier) {
     return false;
 }
 
-bool Widget::fichierContient(QString nomFichier) {
-    QFile fichier(nomFichier);
-    fichier.open(QIODevice::ReadOnly | QIODevice::Text);
-    QTextStream in (&fichier);
-    QString line;
-    do {
-        line = in.readLine();
-        bool found;
-        found = regularExpression().globalMatch(line).hasNext();
-        if (found) {
-            fichier.close();
-            return true;
-        }
-    } while (!line.isNull());
-    fichier.close();
-    return false;
+void Widget::fichierTrouve(const QString &nomFichier) {
+    ui->tableResultats->insertRow(ui->tableResultats->rowCount());
+    ui->tableResultats->setRowCount(ui->tableResultats->rowCount());
+    int numLigne = ui->tableResultats->rowCount()-1;
+    ui->tableResultats->setItem(numLigne, 0, new QTableWidgetItem(nomFichier.section("/", -1)));
+    ui->tableResultats->setItem(numLigne, 1, new QTableWidgetItem(nomFichier));
+    ui->tableResultats->horizontalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
 QRegularExpression Widget::regularExpression() {

@@ -57,16 +57,17 @@ public slots:
     void on_boutonArret_clicked();
     void slotFind(Ui::FindWidget uiFind, QString ttf=QString(), QTextDocument::FindFlags options=0, bool fromButton=false);
     void nouvelleRecherche(QString);
-
+    void threadFinished();
 private:
     Ui::Widget *ui;
-    bool fichierContient(QString nomFichier);
     bool repertoireExclu(QString nomFichier);
     bool stopper;
     QSyntaxHighlighter *highlighter = 0;
     Find* finder;
     TextEdit* textApercu;
     QRegularExpression regularExpression();
+    void fichierTrouve(const QString &nomFichier);
+    int nbThread;
 };
 
 #endif // WIDGET_H
